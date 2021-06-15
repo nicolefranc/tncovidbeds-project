@@ -40,17 +40,24 @@ def checkUpdates(hospitals):
         hospitalId = hospital["_id"]
 
         storedHospital = getHospitalByHospitalId(hospital_id=hospitalId)
-        storedUpdatedDateTime = storedHospital["result"]["UpdatedDateTime"]
+        print(hospitalId)
 
-        # Check if retrieved updatedTime is greater than stored updatedTime
-        isUpdated = hospital["UpdatedDateTime"] > storedUpdatedDateTime
+        if storedHospital is not None:
+            print(storedHospital["district_name"])
+            storedUpdatedDateTime = storedHospital["result"]["UpdatedDateTime"]
 
-        if isUpdated:
-            updateHospital(hospital_id=hospitalId,
-                           updatedData=hospital)  # update the data
-            print(f"{index}- UPDATED {hospitalName}!")
+            # Check if retrieved updatedTime is greater than stored updatedTime
+            isUpdated = hospital["UpdatedDateTime"] > storedUpdatedDateTime
+
+            if isUpdated:
+                updateHospital(hospital_id=hospitalId,
+                               updatedData=hospital)  # update the data
+                print(f"{index}- UPDATED {hospitalName}!")
+            else:
+                print(f"{index}- No updates for {hospitalName}.")
         else:
-            print(f"{index}- No updates for {hospitalName}.")
+            # TODO: add the new hospital entry in db
+            print("Hospital doesn't exist in DB")
 
     # Separator
     print("==============================================\n")

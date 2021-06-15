@@ -11,8 +11,10 @@ def listInstructions():
     message = '''INSTRUCTIONS
 
 - To get a list of district codes, enter 'districts'
+
 - To get a list of hospital codes, enter 'hospitals <district code>'
     e.g. entering 'hospitals ARI' will return a list hospitals in Ariyalur
+
 - To get info for a particular hospital, enter 'info <district code>-<hospital code>' e.g. entering 'info ARI-3' will return info on Arts College, Ariyalur
     '''
 
@@ -50,14 +52,18 @@ def listHospitals(incoming):
     try:
         code = incoming.split(' ')[1].upper()
     except (IndexError, TypeError, ValueError):
-        message = 'Please check that you followed the command and try again'
-        return message
+        message = 'Please check that you followed the command and try again.'
+        return (message, '', '', '', '', '', '', '')
     print(incoming, code)
     message = ''
     for item in getHospitalByDistrict(code):
         message = message + str(item['index']) + \
             '. ' + item['result']["Name"] + '\n'
     print(message)
+
+    if message == '':
+        message = 'Please enter the correct district code.'
+        return (message, '', '', '', '', '', '', '')
 
     out = message[:1599]
     out2 = message[1600:3199]
@@ -93,14 +99,20 @@ def getHospitalInfo(incoming):
         line1 = ''
     try:
         line2 = result['result']['AddressDetail']['Line2']
+        if line1 == line2:
+            line2 = ''
     except KeyError:
         line2 = ''
     try:
         line3 = result['result']['AddressDetail']['Line3']
+        if line1 == line3 or line2 == line3:
+            line3 = ''
     except KeyError:
         line3 = ''
 
     address = ' '.join([line1, line2, line3])
+    if address == '  ':
+        address = 'Not Available'
 
     message = """
 {} : {}
