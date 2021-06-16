@@ -1,5 +1,6 @@
 BODY_STR = 'Body'
-
+SOURCE = 'Source: https://tncovidbeds.tnega.org'
+ERROR_MESSAGE = 'Please check that you followed the command and try again'
 
 LIST_DISTRICTS_RESPONSE = '''
 Ariyalur - ARI
@@ -88,5 +89,4 @@ Virudhunagar,5ea0abd3d43ec2250a483a58,விருதுநகர்'''
 DISTRICT_SHORTS = []
 for district in LIST_DISTRICTS_RESPONSE.split('\n'):
     if district:
-
-        DISTRICT_SHORTS.append(district.split(' - ')[1])
+        DISTRICT_SHORTS.append(district.split(' - ')[1].strip())

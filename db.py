@@ -26,7 +26,8 @@ def getHospitalByDistrictAndIndex(district_code, index):
 def getHospitalByDistrict(district_code):
     hospital = hospitals.find({'$and': [{'district_short': district_code},
                                         {'$or': [{'result.CovidBedDetails.VaccantO2Beds': {'$ne': 0}},
-                                                 {'result.CovidBedDetails.VaccantNonO2Beds': {'$ne': 0}},
+                                                 {'result.CovidBedDetails.VaccantNonO2Beds': {
+                                                     '$ne': 0}},
                                                  {'result.CovidBedDetails.VaccantICUBeds': {'$ne': 0}}, ]}
                                         ]})
 

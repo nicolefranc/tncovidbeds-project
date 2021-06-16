@@ -4,7 +4,7 @@ from typing import Type
 from pymongo import MongoClient
 import time
 from apicall import *
-from constants import LIST_DISTRICTS_RESPONSE
+from constants import ERROR_MESSAGE, LIST_DISTRICTS_RESPONSE, SOURCE
 
 
 def listInstructions():
@@ -12,11 +12,10 @@ def listInstructions():
 
 - To get a list of district codes, enter 'districts'
 
-- To get a list of hospital codes, enter 'hospitals <district code>'
-    e.g. entering 'hospitals ARI' will return a list hospitals in Ariyalur
+- To get a list of hospital codes, enter '<district code>' e.g. entering 'ARI' will return a list hospitals in Ariyalur
 
-- To get info for a particular hospital, enter 'info <district code>-<hospital code>' e.g. entering 'info ARI-3' will return info on Arts College, Ariyalur
-    '''
+- To get info for a particular hospital, enter '<district code> - <hospital code>' e.g. entering 'ARI-3' will return info on Arts College, Ariyalur
+'''
 
     return message
 
@@ -30,15 +29,7 @@ def subscribe(incoming):
 
 
 def listDistricts():
-    # districts = fetchDistricts()
-
-    message = 'List of Districts\n----------------\n'
-
-    # for district in districts:
-    #     id = district['_id']
-    #     name = district['Name']
-    #     shortcode = district['ShortCode']
-    #     message += f'{name} - {shortcode}\n'
+    message = f'List of Districts\n{SOURCE}\n'
 
     message += LIST_DISTRICTS_RESPONSE
     print(message)
@@ -46,24 +37,19 @@ def listDistricts():
 
 
 def listHospitals(incoming):
-    # incoming should be in the form 'hospitals <district code>'
-    # 1. extract the hospital code
+    # incoming should be in the form '<district code>'
+    # 1. convert the hospital code to uppercase
     # 2. send a list of hospitals in that district
     try:
-        code = incoming.split(' ')[1].upper()
+        code = incoming.upper()
     except (IndexError, TypeError, ValueError):
-        message = 'Please check that you followed the command and try again.'
-        return (message, '', '', '', '', '', '', '')
+        return (ERROR_MESSAGE, '', '', '', '', '', '', '')
     print(incoming, code)
-    message = ''
+    message = f'HOSPITALS IN {code}\n{SOURCE}\n\n\n'
     for item in getHospitalByDistrict(code):
         message = message + str(item['index']) + \
-            '. ' + item['result']["Name"] + '\n'
+            '.   ' + item['result']["Name"] + '\n'
     print(message)
-
-    if message == '':
-        message = 'Please enter the correct district code.'
-        return (message, '', '', '', '', '', '', '')
 
     out = message[:1599]
     out2 = message[1600:3199]
@@ -78,8 +64,8 @@ def listHospitals(incoming):
 
 
 def getHospitalInfo(incoming):
-    # incoming should be in the form 'info <hospital code>'
-    # 1. extract the hospital code
+    # incoming should be in the form '<district code> - <hospital code>'
+    # 1. extract the district and hospital code
     # 2. check if that hospital has updates and send response
     try:
         in_district, in_num = incoming.split('-')
@@ -87,10 +73,13 @@ def getHospitalInfo(incoming):
         num = in_num.strip()
         print(district, num)
     except (IndexError, TypeError, ValueError):
-        message = 'Please check that you followed the command and try again'
-        return message
+        return ERROR_MESSAGE
     result = getHospitalByDistrictAndIndex(district_code=district, index=num)
     print(result)
+
+    if result is None:
+        return f'Hospital or district does not exist. {ERROR_MESSAGE}'
+
     bed_info = result['result']['CovidBedDetails']
     last_updated = time.ctime(bed_info["LastUpdatedTime"])
     try:
@@ -114,21 +103,21 @@ def getHospitalInfo(incoming):
     if address == '  ':
         address = 'Not Available'
 
-    message = """
-{} : {}
-Hospital : {}
-Beds Info-
-Vacant O2 Bed : {}
-Vacant Normal Bed : {}
-Vacant ICU Bed : {}
-Last updated: {}
+    message = f'''
+BEDS INFORMATION
+{SOURCE}
 
-Address: {}
+{result['district_name']} - {district.upper()}
+{result['result']['Name']}
 
-Contact : {} - {}
+Vacant O2 Bed(s): {bed_info['VaccantO2Beds']}
+Vacant Normal Bed(s): {bed_info['VaccantNonO2Beds']}
+Vacant ICU Bed(s): {bed_info['VaccantICUBeds']}
+Last updated on: {last_updated}
 
-    """.format(district.upper(), result['district_name'], result['result']['Name'], bed_info['VaccantO2Beds'], bed_info['VaccantNonO2Beds'],
-               bed_info['VaccantICUBeds'], last_updated, address, result['result']['PrimaryContactPerson'],
-               result['result']['MobileNumber'])
+Address: {address}
+
+Contact : {result['result']['PrimaryContactPerson']} - {result['result']['MobileNumber']}
+'''
 
     return message
