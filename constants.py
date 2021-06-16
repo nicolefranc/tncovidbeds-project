@@ -84,3 +84,9 @@ Tiruvannamalai,5ea0abd2d43ec2250a483a44,திருவண்ணாமலை
 Vellore,5ea0abd2d43ec2250a483a42,வேலூர்
 Villupuram,5ea0abd2d43ec2250a483a45,விழுப்புரம்
 Virudhunagar,5ea0abd3d43ec2250a483a58,விருதுநகர்'''
+
+DISTRICT_SHORTS = []
+for district in LIST_DISTRICTS_RESPONSE.split('\n'):
+    if district:
+
+        DISTRICT_SHORTS.append(district.split(' - ')[1])

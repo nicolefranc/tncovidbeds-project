@@ -82,7 +82,7 @@ def getHospitalInfo(incoming):
     # 1. extract the hospital code
     # 2. check if that hospital has updates and send response
     try:
-        in_district, in_num = incoming.split(' ')[1].split('-')
+        in_district, in_num = incoming.split('-')
         district = in_district.strip()
         num = in_num.strip()
         print(district, num)
